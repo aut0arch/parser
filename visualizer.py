@@ -51,4 +51,14 @@ def print_terminal_graph(nodes, edges):
     with console.capture() as capture:
         console.print(root_tree)
     
-    print(capture.get())
+    import sys
+    
+    try:
+        # Try to reconfigure stdout to utf-8 if possible
+        if hasattr(sys.stdout, 'reconfigure'):
+            sys.stdout.reconfigure(encoding='utf-8')
+        print(capture.get())
+    except UnicodeEncodeError:
+        # Fallback: print a simplified message if encoding fails
+        print("Graph visualization could not be printed due to encoding issues.")
+        print(f"Total nodes: {len(nodes)}, Total edges: {len(edges)}")

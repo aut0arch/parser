@@ -2,3 +2,6 @@ test_*
 __pycache__
 *.dot
 *.json
+venv
+
+FullExplnation.md
