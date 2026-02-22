@@ -1,6 +1,9 @@
 
+import logging
 from typing import Dict, List
 from models import Node, Edge, NodeType
+
+logger = logging.getLogger(__name__)
 
 def export_to_dot(nodes: Dict[str, Node], edges: List[Edge], output_path: str):
     """
@@ -62,4 +65,4 @@ def export_to_dot(nodes: Dict[str, Node], edges: List[Edge], output_path: str):
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write("\n".join(lines))
         
-    print(f"DOT export saved to {output_path}")
+    logger.info(f"DOT export saved to {output_path}")

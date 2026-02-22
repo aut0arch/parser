@@ -1,8 +1,16 @@
 
 import os
 import sys
+import logging
 from tree_sitter import Language, Parser, Query, QueryCursor
 import tree_sitter_java as tsjava
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 from models import Node, Edge, NodeType
 
@@ -29,11 +37,11 @@ class JavaGraphBuilder:
         self.edges.append(Edge(source, target, relation))
 
     def build_graph(self):
-        print(f"Scanning {self.root_dir}...")
+        logger.info(f"Scanning {self.root_dir}...")
         self._pass1_discovery()
         self._pass2_linking()
         
-        print(f"Graph built: {len(self.nodes)} nodes, {len(self.edges)} edges.")
+        logger.info(f"Graph built: {len(self.nodes)} nodes, {len(self.edges)} edges.")
         return self.nodes, self.edges
 
     def _pass1_discovery(self):
@@ -134,13 +142,13 @@ class JavaGraphBuilder:
                             self.add_edge(parent_id, method_id, "CONTAINS")
 
         except Exception as e:
-            print(f"Error parsing {file_path}: {e}")
+            logger.error(f"Error parsing {file_path}: {e}")
             import traceback
             traceback.print_exc()
 
     def _pass2_linking(self):
         """Re-visits files to resolve dependencies (function calls)."""
-        print("Starting Pass 2: Linking...")
+        logger.info("Starting Pass 2: Linking...")
         for root, _, files in os.walk(self.root_dir):
             for file in files:
                 if file.endswith(".java"):
@@ -221,7 +229,7 @@ class JavaGraphBuilder:
                                 self.add_edge(source_id, match_id, "CALLS")
                         
         except Exception as e:
-            print(f"Error processing {file_path} in Pass 2: {e}")
+            logger.error(f"Error processing {file_path} in Pass 2: {e}")
             import traceback
             traceback.print_exc()
 

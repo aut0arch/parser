@@ -1,8 +1,11 @@
 
 import json
+import logging
 import dataclasses
 from typing import Dict, List
 from models import Node, Edge, NodeType
+
+logger = logging.getLogger(__name__)
 
 class EnhancedJSONEncoder(json.JSONEncoder):
     def default(self, o):
@@ -21,4 +24,4 @@ def export_to_json(nodes: Dict[str, Node], edges: List[Edge], output_path: str):
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(data, f, cls=EnhancedJSONEncoder, indent=2)
     
-    print(f"JSON export saved to {output_path}")
+    logger.info(f"JSON export saved to {output_path}")
