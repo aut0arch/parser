@@ -1,6 +1,9 @@
 
+import logging
 from rich.console import Console
 from rich.tree import Tree
+
+logger = logging.getLogger(__name__)
 
 def print_terminal_graph(nodes, edges):
     console = Console(force_terminal=True, width=100)
@@ -13,9 +16,9 @@ def print_terminal_graph(nodes, edges):
     # 1. Nesting Structure (Files -> Classes -> Methods)
     # We can iterate through files first.
     
-    print(f"Total nodes: {len(nodes)}")
+    logger.info(f"Total nodes: {len(nodes)}")
     files = [n for n in nodes.values() if n.type.name == "FILE"]
-    print(f"Files found: {len(files)}")
+    logger.info(f"Files found: {len(files)}")
     
     for file_node in files:
         file_tree = root_tree.add(f"[green]📄 {file_node.name}")
@@ -60,5 +63,5 @@ def print_terminal_graph(nodes, edges):
         print(capture.get())
     except UnicodeEncodeError:
         # Fallback: print a simplified message if encoding fails
-        print("Graph visualization could not be printed due to encoding issues.")
-        print(f"Total nodes: {len(nodes)}, Total edges: {len(edges)}")
+        logger.error("Graph visualization could not be printed due to encoding issues.")
+        logger.info(f"Total nodes: {len(nodes)}, Total edges: {len(edges)}")
