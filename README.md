@@ -8,6 +8,26 @@ We have successfully built a Python-based tool that parses Java repositories and
 3.  **Fuzzy Linking**: Connects method calls to their definitions (Cross-file resolution).
 4.  **Visualization**: Renders a beautiful tree view in the terminal using `rich`.
 
+## Installation & Setup
+
+### Method 1: Docker Compose (Recommended)
+
+To run the parser seamlessly as part of the full application stack without installing `tree-sitter` and C compilers on your host machine, run this command from the **root directory** of the repository:
+
+```bash
+docker-compose up --build -d
+```
+The parser runs as an internal orchestrator task when processing a repository from the frontend UI.
+
+### Method 2: Local Usage
+
+To use the parser standalone natively:
+1. Ensure Python 3.10+ and a C compiler (e.g. `build-essential` or `Xcode Command Line Tools`) are installed (required for compiling Tree-sitter bindings).
+2. Install Python dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
 ## Usage
 Run the parser on any directory containing `.java` files:
 
