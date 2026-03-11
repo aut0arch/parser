@@ -211,19 +211,50 @@ class JavaGraphBuilder:
                                 object_name = source_code[object_node.start_byte:object_node.end_byte].decode("utf8")
                             
                             target_candidates = []
-                            
+                            # Better resolution logic for Java method calls
                             if object_name:
+                                # 1. Direct class match (e.g., Math.max)
                                 if object_name in self.symbol_index:
                                     possible_class_ids = self.symbol_index[object_name]
                                     for class_id in possible_class_ids:
                                         target_id = f"{class_id}::{call_name}"
                                         if target_id in self.nodes:
                                             target_candidates.append(target_id)
+                                
+                                # 2. Crude variable type resolution: search for the object_name
+                                #    in the same file, looking for its type declaration.
+                                #    e.g., UserService userService = ... -> type is UserService
+                                else:
+                                    # Fallback: scan all known classes. If call_name exists in a class,
+                                    # and that class name is a case-insensitive match to object_name
+                                    # (e.g., userService -> UserService)
+                                    for class_name, class_ids in self.symbol_index.items():
+                                        if class_name.lower() == object_name.lower() or object_name.lower().endswith(class_name.lower()):
+                                            for class_id in class_ids:
+                                                target_id = f"{class_id}::{call_name}"
+                                                if target_id in self.nodes:
+                                                    target_candidates.append(target_id)
+                                                    
+                                    # If still empty, just try to find ANY method with this name
+                                    # This is a very fuzzy fallback
+                                    if not target_candidates:
+                                        for node_id, node in self.nodes.items():
+                                            if node.type == NodeType.METHOD and node.name == call_name:
+                                                target_candidates.append(node_id)
                             else:
                                 current_class_id = f"{file_path}::{source_class_name}"
                                 target_id = f"{current_class_id}::{call_name}"
                                 if target_id in self.nodes:
                                     target_candidates.append(target_id)
+                                else:
+                                    # Method might be in a parent class or imported statically.
+                                    # Fuzzy fallback: find any method with this name
+                                    for node_id, node in self.nodes.items():
+                                        if node.type == NodeType.METHOD and node.name == call_name:
+                                            target_candidates.append(node_id)
+                            
+                            # Deduplicate target candidates
+                            target_candidates = list(set(target_candidates))
                             
                             for match_id in target_candidates:
                                 self.add_edge(source_id, match_id, "CALLS")
